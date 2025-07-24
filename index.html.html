@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InnovateSphere Solutions - Driving Digital Transformation</title>
+    <!-- Google site verification tag -->
+    <meta name="google-site-verification" content="_RuD1pMINqqPzNOdVGIcZT1FQ20Pk_Hy-xBkMIM-UnQ" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light blue-gray background */
+            color: #334155; /* Slate 700 */
+            scroll-behavior: smooth; /* Smooth scrolling for anchors */
+        }
+        /* Custom scroll-to-top button styling */
+        #scrollToTopBtn {
+            display: none; /* Hidden by default */
+            position: fixed; /* Fixed position */
+            bottom: 20px; /* Place at the bottom */
+            right: 20px; /* Place at the right */
+            z-index: 99; /* Ensure it's above other content */
+            border: none; /* Remove borders */
+            outline: none; /* Remove outline */
+            background-color: #1d4ed8; /* Blue 700 */
+            color: white; /* White text */
+            cursor: pointer; /* Add a mouse pointer on hover */
+            padding: 15px; /* Some padding */
+            border-radius: 50%; /* Rounded corners */
+            font-size: 18px; /* Increase font size */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #scrollToTopBtn:hover {
+            background-color: #1e40af; /* Darker blue on hover */
+            transform: translateY(-3px);
+        }
+
+        /* Chat bubble styling */
+        .chat-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 1.25rem; /* Rounded corners for bubbles */
+            margin-bottom: 10px;
+            word-wrap: break-word; /* Ensure long words break */
+        }
+        .user-message {
+            background-color: #e0f2fe; /* Light blue */
+            align-self: flex-end;
+            margin-left: auto; /* Push to the right */
+            border-bottom-right-radius: 0.5rem; /* Sharpen one corner */
+        }
+        .ai-message {
+            background-color: #f0f4f8; /* Light gray */
+            align-self: flex-start;
+            margin-right: auto; /* Push to the left */
+            border-bottom-left-radius: 0.5rem; /* Sharpen one corner */
+        }
+
+        /* Keyframe for bounce animation */
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(-25%);
+                animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+            }
+            50% {
+                transform: translateY(0);
+                animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+            }
+        }
+        .animate-bounce-custom {
+            animation: bounce 1s infinite;
+        }
+
+        /* Testimonial slider styling */
+        .testimonial-slider {
+            position: relative;
+            overflow: hidden;
+        }
+        .testimonial-slide {
+            display: none; /* Hidden by default */
+            transition: opacity 0.5s ease-in-out;
+        }
+        .testimonial-slide.active {
+            display: block; /* Show active slide */
+            opacity: 1;
+        }
+        .testimonial-nav-button {
+            background-color: rgba(29, 78, 216, 0.7); /* Blue 700 with transparency */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            transition: background-color 0.3s ease;
+        }
+        .testimonial-nav-button:hover {
+            background-color: #1d4ed8; /* Blue 700 */
+        }
+        .testimonial-nav-button.prev {
+            left: 10px;
+        }
+        .testimonial-nav-button.next {
+            right: 10px;
+        }
+
+        /* Ensure clickable cards fill their container and are styled as links */
+        .service-card-link {
+            display: block; /* Make the entire card clickable */
+            text-decoration: none; /* Remove underline from link */
+            color: inherit; /* Inherit text color */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-4 shadow-lg rounded-b-lg">
+        <div class="container mx-auto flex justify-between items-center flex-wrap">
+            <!-- Logo/Site Title -->
+            <a href="#" class="text-3xl font-extrabold tracking-tight rounded-md p-2 hover:bg-white hover:text-blue-700 transition duration-300 transform hover:scale-105">
+                InnovateSphere Solutions
+            </a>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-white rounded-md p-2">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+
+            <!-- Navigation Links -->
+            <nav id="main-nav" class="hidden md:flex flex-col md:flex-row md:space-x-8 mt-4 md:mt-0 w-full md:w-auto text-lg">
+                <a href="#home" class="block py-2 px-4 rounded-md hover:bg-white hover:text-blue-700 transition duration-300">Home</a>
+                <a href="#about" class="block py-2 px-4 rounded-md hover:bg-white hover:text-blue-700 transition duration-300">About</a>
+                <a href="#features" class="block py-2 px-4 rounded-md hover:bg-white hover:text-blue-700 transition duration-300">Benefits</a>
+                <a href="#services" class="block py-2 px-4 rounded-md hover:bg-white hover:text-blue-700 transition duration-300">Solutions</a>
+                <a href="#software-development-details" class="block py-2 px-4 rounded-md hover:bg-white hover:text-blue-700 transition duration-300 md:hidden lg:block">Software Dev</a>
+                <a href="#cloud-infrastructure-details" class="block py-2 px-4 rounded-md hover:bg-white hover:text-blue-700 transition duration-300 md:hidden lg:block">Cloud Infra</a>
+                <a href="#data-ai-details" class="block py-2 px-4 rounded-md hover:bg-white hover:text-blue-700 transition duration-300 md:hidden lg:block">Data & AI</a>
+                <a href="#testimonials" class="block py-2 px-4 rounded-md hover:bg-white hover:text-blue-700 transition duration-300">Clients</a>
+                <a href="#ai-chat" class="block py-2 px-4 rounded-md hover:bg-white hover:text-blue-700 transition duration-300">AI Support</a>
+                <a href="#contact" class="block py-2 px-4 rounded-md hover:bg-white hover:text-blue-700 transition duration-300">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="bg-gradient-to-br from-blue-50 to-indigo-100 py-24 px-4 md:px-8 text-center rounded-lg shadow-xl my-8 mx-4 md:mx-auto max-w-6xl overflow-hidden">
+        <h1 class="text-6xl md:text-7xl font-black text-gray-900 mb-6 leading-tight animate-fade-in-up">
+            Driving Digital Transformation with <span class="text-blue-700 drop-shadow-lg">InnovateSphere</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-700 mb-10 max-w-4xl mx-auto animate-fade-in-up delay-200">
+            Empowering businesses with cutting-edge technology, strategic insights, and unparalleled support to achieve their full potential.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6 animate-fade-in-up delay-400">
+            <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-300 text-xl">
+                Get a Free Consultation
+            </button>
+            <button class="bg-transparent border-2 border-blue-600 text-blue-700 font-bold py-4 px-10 rounded-full shadow-md hover:bg-blue-100 transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-300 text-xl">
+                Explore Our Solutions
+            </button>
+        </div>
+        <div class="mt-16 flex justify-center">
+            <svg class="w-16 h-16 text-blue-500 animate-bounce-custom" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-16 px-4 md:px-8 bg-white rounded-lg shadow-md my-8 mx-4 md:mx-auto max-w-6xl">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">About InnovateSphere Solutions</h2>
+            <div class="flex flex-col md:flex-row items-center md:space-x-12">
+                <div class="md:w-1/2 mb-8 md:mb-0 transform hover:scale-105 transition duration-300">
+                    <img src="https://placehold.co/600x400/e0f2fe/0c4a6e?text=Our+Team+Working" alt="Our Team Working" class="rounded-lg shadow-xl w-full h-auto object-cover">
+                </div>
+                <div class="md:w-1/2 text-lg text-gray-700 leading-relaxed">
+                    <p class="mb-4">
+                        At InnovateSphere Solutions, we are at the forefront of digital innovation, dedicated to crafting bespoke technological solutions that drive growth and efficiency for businesses worldwide. Established in 2023, our journey began with a clear vision: to bridge the gap between complex technology and practical business needs.
+                    </p>
+                    <p class="mb-4">
+                        Our diverse team of certified experts, including seasoned developers, strategic marketers, and intuitive designers, are passionate about pushing boundaries. We pride ourselves on a culture of continuous learning and adaptation, ensuring our clients always benefit from the latest industry advancements.
+                    </p>
+                    <p>
+                        We believe in a collaborative partnership, working closely with each client to understand their unique challenges and aspirations. This allows us to deliver tailored, impactful solutions that not only meet but exceed expectations, fostering long-term success.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section (Renamed to Benefits) -->
+    <section id="features" class="py-16 px-4 md:px-8 bg-gray-100 rounded-lg shadow-md my-8 mx-4 md:mx-auto max-w-6xl">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">The InnovateSphere Advantage</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature Card 1 -->
+                <div class="bg-white p-8 rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition duration-300 ease-in-out text-center">
+                    <div class="text-blue-600 mb-4 mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-blue-50">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 002.92 12c0 3.072 1.243 5.872 3.295 7.925l-1.625 1.625a1 1 0 101.414 1.414l1.625-1.625C9.72 21.077 12 22 12 22s2.28-.923 4.386-2.075l1.625 1.625a1 1 0 101.414-1.414l-1.625-1.625c2.052-2.053 3.295-4.853 3.295-7.925a12.001 12.001 0 00-.08-1.056z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-3">Guaranteed Quality</h3>
+                    <p class="text-gray-600">
+                        Our rigorous quality assurance ensures every solution we deliver is robust, reliable, and high-performing.
+                    </p>
+                </div>
+
+                <!-- Feature Card 2 -->
+                <div class="bg-white p-8 rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition duration-300 ease-in-out text-center">
+                    <div class="text-green-600 mb-4 mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-green-50">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-3">Future-Proof Innovation</h3>
+                    <p class="text-gray-600">
+                        We build scalable and adaptable systems that evolve with your business, ensuring long-term relevance.
+                    </p>
+                </div>
+
+                <!-- Feature Card 3 -->
+                <div class="bg-white p-8 rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition duration-300 ease-in-out text-center">
+                    <div class="text-purple-600 mb-4 mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-purple-50">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-3">Dedicated Partnership</h3>
+                    <p class="text-gray-600">
+                        We act as an extension of your team, offering continuous support and strategic guidance every step of the way.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section (Renamed to Solutions) -->
+    <section id="services" class="py-16 px-4 md:px-8 bg-gray-50 rounded-lg shadow-md my-8 mx-4 md:mx-auto max-w-6xl">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Our Core Solutions</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Service Card 1: Custom Software Development -->
+                <a href="#software-development-details" class="service-card-link bg-white p-8 rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition duration-300 ease-in-out cursor-pointer">
+                    <div class="text-blue-600 mb-4 text-center">
+                        <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9.75 14.25M12 14.25L12 17M14.25 14.25L14.25 17M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Custom Software Development</h3>
+                    <p class="text-gray-600 text-center">
+                        Building scalable and robust software applications tailored to your unique business processes.
+                    </p>
+                </a>
+
+                <!-- Service Card 2: Cloud & Infrastructure Services -->
+                <a href="#cloud-infrastructure-details" class="service-card-link bg-white p-8 rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition duration-300 ease-in-out cursor-pointer">
+                    <div class="text-green-600 mb-4 text-center">
+                        <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Cloud & Infrastructure Services</h3>
+                    <p class="text-gray-600 text-center">
+                        Designing, deploying, and managing secure and efficient cloud environments for optimal performance.
+                    </p>
+                </a>
+
+                <!-- Service Card 3: Data Analytics & AI -->
+                <a href="#data-ai-details" class="service-card-link bg-white p-8 rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition duration-300 ease-in-out cursor-pointer">
+                    <div class="text-purple-600 mb-4 text-center">
+                        <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L18 21l-7.286-2.143L3 12l5.714-2.143L6 3z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Data Analytics & AI</h3>
+                    <p class="text-gray-600 text-center">
+                        Unlocking insights from your data and implementing AI-driven solutions for smarter decision-making.
+                    </p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Section: Custom Software Development -->
+    <section id="software-development-details" class="py-16 px-4 md:px-8 bg-white rounded-lg shadow-md my-8 mx-4 md:mx-auto max-w-6xl">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center text-blue-700 mb-12">Custom Software Development</h2>
+            <div class="flex flex-col md:flex-row items-start md:space-x-12">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <img src="https://placehold.co/600x400/cfe2f3/1d4ed8?text=Software+Development" alt="Software Development" class="rounded-lg shadow-xl w-full h-auto object-cover">
+                </div>
+                <div class="md:w-1/2 text-lg text-gray-700 leading-relaxed">
+                    <p class="mb-4">
+                        At InnovateSphere, we specialize in creating bespoke software solutions that perfectly align with your business objectives. From enterprise-level applications to intricate mobile apps, our development process is agile, transparent, and focused on delivering measurable value.
+                    </p>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Our Expertise Includes:</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>Web Application Development (Frontend & Backend)</li>
+                        <li>Mobile App Development (iOS & Android)</li>
+                        <li>Enterprise Resource Planning (ERP) Solutions</li>
+                        <li>Customer Relationship Management (CRM) Systems</li>
+                        <li>API Development and Integration</li>
+                        <li>Legacy System Modernization</li>
+                    </ul>
+                    <p class="mt-6">
+                        We leverage cutting-edge technologies and best practices to ensure your software is not only functional but also secure, scalable, and user-friendly.
+                    </p>
+                    <a href="#contact" class="inline-block">
+                        <button class="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-300">
+                            Discuss Your Project
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Section: Cloud & Infrastructure Services -->
+    <section id="cloud-infrastructure-details" class="py-16 px-4 md:px-8 bg-gray-100 rounded-lg shadow-md my-8 mx-4 md:mx-auto max-w-6xl">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center text-green-700 mb-12">Cloud & Infrastructure Services</h2>
+            <div class="flex flex-col md:flex-row items-start md:space-x-12">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <img src="https://placehold.co/600x400/d1fae5/065f46?text=Cloud+Infrastructure" alt="Cloud Infrastructure" class="rounded-lg shadow-xl w-full h-auto object-cover">
+                </div>
+                <div class="md:w-1/2 text-lg text-gray-700 leading-relaxed">
+                    <p class="mb-4">
+                        Transitioning to the cloud can revolutionize your operations. InnovateSphere provides comprehensive cloud and infrastructure services, ensuring your digital backbone is robust, secure, and highly available. We help you harness the power of leading cloud platforms.
+                    </p>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Our Cloud Solutions Include:</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>Cloud Strategy & Consulting</li>
+                        <li>Cloud Migration & Deployment (AWS, Azure, GCP)</li>
+                        <li>Infrastructure as Code (IaC)</li>
+                        <li>Managed Cloud Services</li>
+                        <li>DevOps Implementation</li>
+                        <li>Network & Security Architecture</li>
+                    </ul>
+                    <p class="mt-6">
+                        Optimize your costs, enhance scalability, and improve your disaster recovery capabilities with our expert cloud services.
+                    </p>
+                    <a href="#contact" class="inline-block">
+                        <button class="mt-8 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-green-300">
+                            Explore Cloud Solutions
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Section: Data Analytics & AI -->
+    <section id="data-ai-details" class="py-16 px-4 md:px-8 bg-white rounded-lg shadow-md my-8 mx-4 md:mx-auto max-w-6xl">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center text-purple-700 mb-12">Data Analytics & AI</h2>
+            <div class="flex flex-col md:flex-row items-start md:space-x-12">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <img src="https://placehold.co/600x400/ede9fe/6b21a8?text=Data+Analytics+AI" alt="Data Analytics & AI" class="rounded-lg shadow-xl w-full h-auto object-cover">
+                </div>
+                <div class="md:w-1/2 text-lg text-gray-700 leading-relaxed">
+                    <p class="mb-4">
+                        Transform raw data into actionable insights and intelligent automation with InnovateSphere's data analytics and AI services. We help you leverage the power of your data to make smarter decisions, predict trends, and enhance customer experiences.
+                    </p>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Our Data & AI Services Include:</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>Business Intelligence (BI) Dashboards</li>
+                        <li>Predictive Analytics & Machine Learning</li>
+                        <li>Natural Language Processing (NLP)</li>
+                        <li>Data Warehousing & ETL</li>
+                        <li>AI-Powered Automation</li>
+                        <li>Data Governance & Security</li>
+                    </ul>
+                    <p class="mt-6">
+                        From data collection to advanced predictive models, we provide end-to-end solutions that drive innovation and competitive advantage.
+                    </p>
+                    <a href="#contact" class="inline-block">
+                        <button class="mt-8 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-purple-300">
+                            Discover Data Insights
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-16 px-4 md:px-8 bg-white rounded-lg shadow-md my-8 mx-4 md:mx-auto max-w-6xl relative">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">What Our Clients Say</h2>
+            <div class="testimonial-slider max-w-3xl mx-auto p-6 bg-gray-50 rounded-lg shadow-inner">
+                <!-- Testimonial Slide 1 -->
+                <div class="testimonial-slide active text-center">
+                    <img src="https://placehold.co/80x80/cbd5e1/475569?text=CEO" alt="Client CEO" class="w-20 h-20 rounded-full mx-auto mb-6 shadow-md">
+                    <p class="text-xl text-gray-700 italic mb-6">
+                        "InnovateSphere Solutions delivered beyond our expectations. Their expertise in custom software development was instrumental in streamlining our operations and boosting efficiency."
+                    </p>
+                    <p class="font-semibold text-blue-700 text-lg">- Sarah Chen, CEO of Quantum Innovations</p>
+                </div>
+
+                <!-- Testimonial Slide 2 -->
+                <div class="testimonial-slide text-center">
+                    <img src="https://placehold.co/80x80/cbd5e1/475569?text=CTO" alt="Client CTO" class="w-20 h-20 rounded-full mx-auto mb-6 shadow-md">
+                    <p class="text-xl text-gray-700 italic mb-6">
+                        "The transition to the cloud was seamless thanks to InnovateSphere. Their team provided exceptional support and ensured our infrastructure is robust and secure."
+                    </p>
+                    <p class="font-semibold text-green-700 text-lg">- Mark Johnson, CTO at Nexus Technologies</p>
+                </div>
+
+                <!-- Testimonial Slide 3 -->
+                <div class="testimonial-slide text-center">
+                    <img src="https://placehold.co/80x80/cbd5e1/475569?text=Lead" alt="Client Lead" class="w-20 h-20 rounded-full mx-auto mb-6 shadow-md">
+                    <p class="text-xl text-gray-700 italic mb-6">
+                        "Their data analytics solutions gave us unparalleled insights into our market. InnovateSphere's AI integration has truly revolutionized our decision-making process."
+                    </p>
+                    <p class="font-semibold text-purple-700 text-lg">- Emily White, Head of Data at Visionary Corp</p>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <button class="testimonial-nav-button prev">&#10094;</button>
+                <button class="testimonial-nav-button next">&#10095;</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Chat Section -->
+    <section id="ai-chat" class="py-16 px-4 md:px-8 bg-gray-100 rounded-lg shadow-md my-8 mx-4 md:mx-auto max-w-6xl">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">InnovateSphere AI Support</h2>
+            <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-inner flex flex-col h-[500px]">
+                <!-- Chat History Display -->
+                <div id="chat-history" class="flex-grow overflow-y-auto p-4 border border-gray-200 rounded-lg mb-4 space-y-4 flex flex-col">
+                    <div class="chat-message ai-message">Hello! How can I assist you today? Ask me anything about InnovateSphere Solutions or general tech questions!</div>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loading-indicator" class="hidden text-center text-gray-500 mb-4">
+                    <div class="flex items-center justify-center space-x-2">
+                        <div class="w-4 h-4 rounded-full bg-blue-500 animate-bounce"></div>
+                        <div class="w-4 h-4 rounded-full bg-blue-500 animate-bounce delay-150"></div>
+                        <div class="w-4 h-4 rounded-full bg-blue-500 animate-bounce delay-300"></div>
+                        <span>Thinking...</span>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="flex space-x-4">
+                    <input type="text" id="chat-input" placeholder="Type your message..."
+                           class="flex-grow px-4 py-3 border border-gray-300 rounded-full shadow-sm focus:ring-blue-500 focus:border-blue-500 text-lg transition duration-200">
+                    <button id="send-button"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-300">
+                        Send
+                    </button>
+                    <button id="clear-chat-button"
+                            class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-red-300">
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Signup Section -->
+    <section id="newsletter" class="py-16 px-4 md:px-8 bg-blue-700 text-white rounded-lg shadow-xl my-8 mx-4 md:mx-auto max-w-6xl text-center">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold mb-6">Stay Connected with InnovateSphere!</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">
+                Subscribe to our newsletter for the latest tech trends, solution updates, and exclusive insights from our experts.
+            </p>
+            <div class="max-w-md mx-auto flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <input type="email" id="newsletter-email" placeholder="Enter your email address"
+                       class="flex-grow px-6 py-3 rounded-full border-2 border-white bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 text-lg">
+                <button id="subscribe-button"
+                        class="bg-white text-blue-700 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-blue-100 transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-white text-lg">
+                    Subscribe
+                </button>
+            </div>
+            <p id="newsletter-message" class="mt-4 text-lg text-blue-200 hidden"></p>
+        </div>
+    </section>
+
+    <!-- Contact Us Section -->
+    <section id="contact" class="py-16 px-4 md:px-8 bg-white rounded-lg shadow-md my-8 mx-4 md:mx-auto max-w-6xl">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Contact Us</h2>
+            <div class="max-w-xl mx-auto bg-gray-50 p-8 rounded-lg shadow-inner">
+                <!-- Formspree endpoint updated with your provided URL -->
+                <form id="contact-form" action="https://formspree.io/f/mgvzarak" method="POST" class="space-y-6">
+                    <div>
+                        <label for="name" class="block text-lg font-medium text-gray-700 mb-2">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your Name" required
+                               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg transition duration-200">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-lg font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="email" name="_replyto" placeholder="your.email@example.com" required
+                               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg transition duration-200">
+                    </div>
+                    <div>
+                        <label for="message" class="block text-lg font-medium text-gray-700 mb-2">Message</label>
+                        <textarea id="message" name="message" rows="5" placeholder="Your message here..." required
+                                  class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg transition duration-200"></textarea>
+                    </div>
+                    <div>
+                        <button type="submit"
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-300">
+                            Send Message
+                        </button>
+                    </div>
+                    <!-- Status message for form submission -->
+                    <p id="form-status" class="text-center mt-4 hidden"></p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white py-8 px-4 md:px-8 rounded-t-lg shadow-inner mt-8">
+        <div class="container mx-auto text-center text-lg">
+            <p>&copy; 2023 InnovateSphere Solutions. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="hover:text-blue-400 transition duration-300">Privacy Policy</a>
+                <a href="#" class="hover:text-blue-400 transition duration-300">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button id="scrollToTopBtn" title="Go to top">&#9650;</button>
+
+    <script>
+        // JavaScript for Mobile Navigation Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mainNav = document.getElementById('main-nav');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mainNav.classList.toggle('hidden');
+            mainNav.classList.toggle('flex');
+            mainNav.classList.toggle('flex-col');
+        });
+
+        // JavaScript for Scroll to Top Button
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                scrollToTopBtn.style.display = "block";
+            } else {
+                scrollToTopBtn.style.display = "none";
+            }
+        };
+
+        // When the user clicks on the button, scroll to the top of the document
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth' // Smooth scroll
+            });
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+
+                // Hide mobile menu after clicking a link
+                if (!mainNav.classList.contains('hidden') && window.innerWidth < 768) {
+                    mainNav.classList.add('hidden');
+                    mainNav.classList.remove('flex');
+                    mainNav.classList.remove('flex-col');
+                }
+            });
+        });
+
+        // AI Chat Functionality
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-button');
+        const chatHistory = document.getElementById('chat-history');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const clearChatButton = document.getElementById('clear-chat-button'); // New clear button
+
+        let chatMessages = [{ role: "model", parts: [{ text: "Hello! How can I assist you today? Ask me anything about InnovateSphere Solutions or general tech questions!" }] }]; // Initialize with the AI's first message
+
+        // Function to add a message to the chat history
+        function addMessageToChat(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', sender === 'user' ? 'user-message' : 'ai-message');
+            messageDiv.textContent = text;
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll to bottom
+        }
+
+        // Function to send message to the AI
+        async function sendMessage() {
+            const prompt = chatInput.value.trim();
+            if (prompt === '') return;
+
+            addMessageToChat(prompt, 'user');
+            chatMessages.push({ role: "user", parts: [{ text: prompt }] });
+            chatInput.value = ''; // Clear input field
+
+            loadingIndicator.classList.remove('hidden'); // Show loading indicator
+            sendButton.disabled = true; // Disable send button
+            chatInput.disabled = true; // Disable input field
+            clearChatButton.disabled = true; // Disable clear button
+
+            try {
+                // Log API key and URL for debugging
+                const apiKey = ""; // Canvas will automatically provide the API key here
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                console.log("API Key:", apiKey ? "Present" : "Missing/Empty"); // Check if API key is present
+                console.log("API URL:", apiUrl);
+
+                const payload = { contents: chatMessages };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                console.log("Fetch Response Status:", response.status);
+                console.log("Fetch Response OK:", response.ok);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API Response Error:", errorText);
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+
+                let result;
+                try {
+                    result = await response.json();
+                    console.log("API Response JSON:", result);
+                } catch (jsonError) {
+                    console.error("Error parsing JSON response:", jsonError);
+                    const rawText = await response.text();
+                    console.error("Raw API response text:", rawText);
+                    addMessageToChat("Error: Invalid response from AI. Please try again.", 'ai');
+                    return; // Exit function if JSON parsing fails
+                }
+
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const aiResponse = result.candidates[0].content.parts[0].text;
+                    addMessageToChat(aiResponse, 'ai');
+                    chatMessages.push({ role: "model", parts: [{ text: aiResponse }] });
+                } else {
+                    addMessageToChat("Error: Could not get a meaningful response from the AI.", 'ai');
+                    console.error("Unexpected API response structure or missing content:", result);
+                }
+            } catch (error) {
+                addMessageToChat(`Error: Failed to connect to the AI. Details: ${error.message || error}. Please try again.`, 'ai');
+                console.error("Error calling Gemini API:", error);
+            } finally {
+                loadingIndicator.classList.add('hidden'); // Hide loading indicator
+                sendButton.disabled = false; // Enable send button
+                chatInput.disabled = false; // Enable input field
+                clearChatButton.disabled = false; // Enable clear button
+                chatInput.focus(); // Focus input for next message
+            }
+        }
+
+        // Event listeners for sending message
+        sendButton.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Clear chat history
+        clearChatButton.addEventListener('click', () => {
+            chatHistory.innerHTML = '<div class="chat-message ai-message">Hello! How can I assist you today? Ask me anything about InnovateSphere Solutions or general tech questions!</div>';
+            chatMessages = [{ role: "model", parts: [{ text: "Hello! How can I assist you today? Ask me anything about InnovateSphere Solutions or general tech questions!" }] }];
+        });
+
+        // Testimonial Slider Functionality
+        const slides = document.querySelectorAll('.testimonial-slide');
+        const prevButton = document.querySelector('.testimonial-nav-button.prev');
+        const nextButton = document.querySelector('.testimonial-nav-button.next');
+        let currentSlide = 0;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        prevButton.addEventListener('click', prevSlide);
+        nextButton.addEventListener('click', nextSlide);
+
+        // Auto-advance testimonials
+        let testimonialInterval = setInterval(nextSlide, 7000); // Change slide every 7 seconds
+
+        // Pause on hover
+        const testimonialSlider = document.querySelector('.testimonial-slider');
+        testimonialSlider.addEventListener('mouseenter', () => clearInterval(testimonialInterval));
+        testimonialSlider.addEventListener('mouseleave', () => {
+            testimonialInterval = setInterval(nextSlide, 7000);
+        });
+
+        // Newsletter Signup Functionality
+        const newsletterEmailInput = document.getElementById('newsletter-email');
+        const subscribeButton = document.getElementById('subscribe-button');
+        const newsletterMessage = document.getElementById('newsletter-message');
+
+        subscribeButton.addEventListener('click', () => {
+            const email = newsletterEmailInput.value.trim();
+            if (email && email.includes('@') && email.includes('.')) {
+                newsletterMessage.textContent = `Thank you for subscribing, ${email}! You'll receive our updates soon.`;
+                newsletterMessage.classList.remove('hidden', 'text-red-300');
+                newsletterMessage.classList.add('text-blue-200');
+                newsletterEmailInput.value = ''; // Clear input
+            } else {
+                newsletterMessage.textContent = 'Please enter a valid email address.';
+                newsletterMessage.classList.remove('hidden', 'text-blue-200');
+                newsletterMessage.classList.add('text-red-300');
+            }
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StreamFlix</title>
+<style>
+:root{--red:#e50914;--bg:#141414;--card:#1f1f1f;--text:#fff;--muted:#b3b3b3}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Helvetica Neue",Arial,sans-serif;overflow-x:hidden}
+button{font:inherit;cursor:pointer;border:0;color:inherit;background:none}
+.hidden{display:none!important}
+
+/* profiles */
+#profiles{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;padding:1rem}
+#profiles h1{font-size:clamp(1.8rem,5vw,3.2rem);font-weight:500}
+.profile-list{display:flex;gap:1.5rem;flex-wrap:wrap;justify-content:center}
+.profile{width:110px;text-align:center;color:var(--muted)}
+.profile .av{width:110px;height:110px;border-radius:6px;display:grid;place-items:center;font-size:3rem;border:3px solid transparent;transition:.2s}
+.profile:hover .av{border-color:#fff}
+.profile:hover{color:#fff}
+
+/* nav */
+nav{position:fixed;top:0;width:100%;z-index:50;display:flex;align-items:center;gap:1.5rem;padding:.9rem 4%;background:linear-gradient(#000c,transparent);transition:background .3s}
+nav.solid{background:var(--bg)}
+.logo{color:var(--red);font-weight:900;font-size:1.7rem;letter-spacing:1px}
+nav a{color:#e5e5e5;font-size:.9rem;text-decoration:none;cursor:pointer}
+nav a.active,nav a:hover{color:#fff;font-weight:600}
+.spacer{flex:1}
+#search{background:#000a;border:1px solid #fff6;color:#fff;padding:.4rem .7rem;border-radius:4px;width:min(220px,40vw)}
+#me{font-size:1.5rem}
+
+/* hero */
+.hero{min-height:80vh;display:flex;align-items:flex-end;padding:0 4% 8%;position:relative}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:30%;background:linear-gradient(transparent,var(--bg))}
+.hero-body{position:relative;z-index:2;max-width:560px}
+.hero h2{font-size:clamp(2.2rem,6vw,4.5rem);line-height:1.05;margin-bottom:1rem}
+.hero p{color:#e5e5e5;line-height:1.5;margin-bottom:1.2rem;text-shadow:0 1px 4px #000}
+.btn{padding:.7rem 1.6rem;border-radius:4px;font-weight:700;margin-right:.6rem}
+.btn.play{background:#fff;color:#000}.btn.info{background:#6d6d6eb3}
+.btn:hover{opacity:.8}
+
+/* rows */
+main{margin-top:-6vh;position:relative;z-index:3;padding-bottom:3rem}
+.row{margin-bottom:2rem}
+.row h3{padding:0 4%;margin-bottom:.6rem;font-size:1.25rem}
+.track{display:flex;gap:.5rem;overflow-x:auto;padding:.5rem 4% 1.2rem;scroll-snap-type:x proximity;scrollbar-width:none}
+.track::-webkit-scrollbar{display:none}
+.card{flex:0 0 auto;width:clamp(130px,16vw,220px);aspect-ratio:2/3;border-radius:6px;position:relative;overflow:hidden;scroll-snap-align:start;transition:transform .25s;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;padding:.7rem}
+.card:hover{transform:scale(1.08);z-index:5;box-shadow:0 8px 24px #000a}
+.card .em{position:absolute;top:18%;left:0;right:0;text-align:center;font-size:3.2rem;opacity:.9}
+.card .t{font-weight:700;font-size:.95rem;text-shadow:0 1px 4px #000;position:relative}
+.card .m{font-size:.72rem;color:#ddd;position:relative}
+.empty{padding:0 4%;color:var(--muted)}
+#results{padding:6rem 4% 2rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem}
+#results .card{width:100%}
+
+/* modal */
+#modal{position:fixed;inset:0;background:#000b;z-index:80;display:grid;place-items:center;padding:1rem}
+.sheet{background:var(--card);width:min(780px,100%);max-height:92vh;overflow:auto;border-radius:10px;position:relative}
+.sheet .banner{height:300px;display:grid;place-items:center;font-size:6rem;position:relative}
+.sheet .banner::after{content:"";position:absolute;inset:auto 0 0 0;height:50%;background:linear-gradient(transparent,var(--card))}
+.sheet .x{position:absolute;top:.7rem;right:.7rem;background:#000a;width:36px;height:36px;border-radius:50%;z-index:3;font-size:1.1rem}
+.sheet .info{padding:0 2rem 2rem;margin-top:-3rem;position:relative;z-index:2}
+.sheet h2{font-size:2rem;margin-bottom:.5rem}
+.meta{color:var(--muted);font-size:.9rem;margin:.6rem 0}
+.meta b{color:#46d369}
+.sheet p{line-height:1.55;margin-bottom:1rem}
+.btn.list{background:#2a2a2a;border:1px solid #fff5}
+
+/* player */
+#player{position:fixed;inset:0;background:#000;z-index:90;display:flex;flex-direction:column}
+#screen{flex:1;display:grid;place-items:center;font-size:clamp(5rem,20vw,12rem);transition:background 1s}
+#ptitle{position:absolute;top:1rem;left:1.2rem;font-size:1.1rem;font-weight:600}
+#pclose{position:absolute;top:.8rem;right:1rem;font-size:1.6rem}
+.controls{padding:1rem 1.5rem 1.5rem;background:linear-gradient(transparent,#000)}
+.bar{height:5px;background:#555;border-radius:3px;cursor:pointer;margin-bottom:.8rem}
+.bar i{display:block;height:100%;width:0;background:var(--red);border-radius:3px}
+.cbtns{display:flex;gap:1.2rem;align-items:center;font-size:1.4rem}
+#time{font-size:.85rem;color:var(--muted);margin-left:auto}
+footer{text-align:center;color:#666;font-size:.78rem;padding:2rem 1rem}
+@media(max-width:600px){nav{gap:.8rem}nav .hide-s{display:none}.sheet .banner{height:200px}}
+</style>
+</head>
+<body>
+
+<div id="profiles">
+  <h1>Who's watching?</h1>
+  <div class="profile-list" id="plist"></div>
+</div>
+
+<nav id="nav" class="hidden">
+  <span class="logo">STREAMFLIX</span>
+  <a data-view="home" class="active">Home</a>
+  <a data-view="Movie" class="hide-s">Movies</a>
+  <a data-view="Series" class="hide-s">Series</a>
+  <a data-view="list">My List</a>
+  <span class="spacer"></span>
+  <input id="search" type="search" placeholder="Titles, genres…" aria-label="Search">
+  <span id="me"></span>
+</nav>
+
+<section class="hero hidden" id="hero"></section>
+<div id="results" class="hidden"></div>
+<main id="rows" class="hidden"></main>
+<footer class="hidden" id="foot">StreamFlix is a demo UI. All titles are fictional placeholders — no real video is streamed.</footer>
+
+<div id="modal" class="hidden"></div>
+
+<div id="player" class="hidden">
+  <div id="screen"></div>
+  <div id="ptitle"></div>
+  <button id="pclose" aria-label="Close player">✕</button>
+  <div class="controls">
+    <div class="bar" id="bar"><i id="fill"></i></div>
+    <div class="cbtns">
+      <button id="pp" aria-label="Play/Pause">⏸</button>
+      <button id="back" aria-label="Back 10 seconds">⏪</button>
+      <button id="fwd" aria-label="Forward 10 seconds">⏩</button>
+      <span id="time">0:00 / 0:00</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+
+const TITLES=[
+ ["Neon Horizon","Movie","Sci-Fi",2024,"PG-13",118,"98%","🚀",200,"In a rain-soaked megacity, a courier discovers a package that can rewrite the city's memory."],
+ ["The Last Lighthouse","Movie","Thriller",2023,"R",104,"94%","🗼",215,"A keeper on a remote island realises the storm outside is not the worst thing on the rock."],
+ ["Dragonfire Chronicles","Series","Fantasy",2024,"TV-14",0,"97%","🐉",15,"Three rival houses race to claim the last living dragon egg before winter falls."],
+ ["Midnight Bakery","Series","Comedy",2022,"TV-PG",0,"91%","🥐",35,"A sleep-deprived baker discovers her sourdough starter is granting wishes — badly."],
+ ["Orbit Nine","Movie","Sci-Fi",2025,"PG",126,"89%","🪐",250,"The crew of a failing station has nine orbits to fix the one thing that cannot be fixed."],
+ ["Shadow Protocol","Series","Action",2023,"TV-MA",0,"93%","🕶️",0,"A burned spy gets one last assignment: protect the agency that betrayed her."],
+ ["Paws & Planets","Movie","Family",2024,"G",92,"96%","🐶",160,"One very brave dog. One very small spaceship. Infinite snacks."],
+ ["Cold Case Cafe","Series","Mystery",2021,"TV-14",0,"90%","☕",25,"Every coffee order at this cafe hides a clue to a decades-old disappearance."],
+ ["Rhythm Street","Movie","Drama",2022,"PG-13",111,"88%","🎷",40,"A jazz prodigy returns home to save the club that raised her."],
+ ["Iron Tide","Movie","Action",2025,"PG-13",134,"92%","⚓",190,"When pirates seize a nuclear sub, only a retired captain knows its secret."],
+ ["Haunted Wi-Fi","Series","Horror",2023,"TV-MA",0,"87%","👻",280,"The router is fine. The router is always fine. So why is it whispering?"],
+ ["Pixel Kingdom","Series","Family",2024,"TV-Y7",0,"95%","🎮",130,"Four kids fall into their favourite game — and its villain is falling for them."],
+ ["Desert Rose","Movie","Drama",2021,"PG-13",122,"86%","🌹",20,"Two strangers cross the Sahara by train, each carrying a secret."],
+ ["Quantum Heist","Movie","Thriller",2024,"PG-13",109,"91%","💎",230,"Rob the vault. Before you arrive. Then again, afterwards."],
+ ["Laugh Track","Series","Comedy",2022,"TV-14",0,"92%","🎤",330,"Six rookie comedians, one cursed open-mic night, zero working microphones."],
+ ["Ocean Whisper","Series","Documentary",2023,"TV-G",0,"98%","🐋",195,"Diving deeper than any camera has gone to meet the planet's quietest giants."],
+ ["Redline Rivals","Movie","Action",2023,"PG-13",115,"85%","🏎️",5,"Two rival street racers must team up to win the world's deadliest rally."],
+ ["The Clockmaker's Heir","Series","Fantasy",2025,"TV-PG",0,"94%","⏳",45,"She inherits a shop full of clocks — each one controls a different hour."],
+ ["Alpine Hearts","Movie","Romance",2022,"PG",98,"84%","🏔️",340,"Snowed in at a mountain lodge, a chef and a critic call a very delicious truce."],
+ ["Zero Gravity Gym","Series","Comedy",2024,"TV-PG",0,"88%","🏋️",175,"The first gym in orbit has one problem: nobody can stay on the treadmill."]
+].map((a,i)=>({id:i,title:a[0],type:a[1],genre:a[2],year:a[3],rating:a[4],mins:a[5],match:a[6],emoji:a[7],hue:a[8],desc:a[9],seasons:(i*7)%4+1}));
+
+const grad=t=>`linear-gradient(160deg,hsl(${t.hue} 70% 38%),hsl(${(t.hue+50)%360} 60% 14%))`;
+const PROFILES=[["Mayan","😎",30],["Guest","🙂",200],["Kids","🧸",120],["Movie Night","🍿",340]];
+let user=store.get("sf_user",null), list=store.get("sf_list",[]), view="home", feat=null;
+
+/* profiles */
+$("#plist").innerHTML=PROFILES.map((p,i)=>`<button class="profile" data-i="${i}"><div class="av" style="background:hsl(${p[2]} 60% 40%)">${p[1]}</div>${p[0]}</button>`).join("");
+$("#plist").onclick=e=>{const b=e.target.closest(".profile");if(!b)return;user=PROFILES[b.dataset.i];store.set("sf_user",user);start()};
+function start(){
+  $("#profiles").classList.add("hidden");
+  ["#nav","#hero","#rows","#foot"].forEach(s=>$(s).classList.remove("hidden"));
+  $("#me").textContent=user[1];
+  render();
+}
+
+/* rendering */
+const cardHTML=t=>`<div class="card" data-id="${t.id}" style="background:${grad(t)}" tabindex="0" role="button" aria-label="${t.title}"><div class="em">${t.emoji}</div><div class="t">${t.title}</div><div class="m">${t.year} · ${t.genre}</div></div>`;
+const rowHTML=(name,items)=>items.length?`<section class="row"><h3>${name}</h3><div class="track">${items.map(cardHTML).join("")}</div></section>`:"";
+
+function render(){
+  const q=$("#search").value.trim().toLowerCase();
+  const results=$("#results"), rows=$("#rows"), hero=$("#hero");
+  if(q){
+    hero.classList.add("hidden");rows.classList.add("hidden");results.classList.remove("hidden");
+    const hits=TITLES.filter(t=>(t.title+t.genre+t.type+t.desc).toLowerCase().includes(q));
+    results.innerHTML=hits.length?hits.map(cardHTML).join(""):`<p class="empty">No results for “${q.replace(/[<>&]/g,"")}”.</p>`;
+    return;
+  }
+  results.classList.add("hidden");rows.classList.remove("hidden");hero.classList.remove("hidden");
+  let pool=TITLES;
+  if(view==="Movie"||view==="Series")pool=TITLES.filter(t=>t.type===view);
+  if(view==="list")pool=TITLES.filter(t=>list.includes(t.id));
+  if(view==="list"&&!pool.length){hero.classList.add("hidden");rows.innerHTML=`<p class="empty" style="padding-top:7rem">Your list is empty. Open a title and press “+ My List”.</p>`;return}
+  feat=view==="list"?pool[0]:(pool[(new Date().getDate())%pool.length]);
+  hero.style.background=grad(feat);
+  hero.innerHTML=`<div style="position:absolute;right:8%;top:22%;font-size:clamp(6rem,22vw,16rem);opacity:.35">${feat.emoji}</div>
+   <div class="hero-body"><h2>${feat.title}</h2><p>${feat.desc}</p>
+   <button class="btn play" data-play="${feat.id}">▶ Play</button><button class="btn info" data-info="${feat.id}">ⓘ More Info</button></div>`;
+  let h="";
+  if(view==="home"){
+    const cont=store.get("sf_prog",{});const cw=Object.keys(cont).map(Number).map(i=>TITLES[i]);
+    h+=rowHTML("Continue Watching",cw);
+    h+=rowHTML("My List",pool.filter(t=>list.includes(t.id)));
+    h+=rowHTML("Trending Now",[...pool].sort((a,b)=>parseInt(b.match)-parseInt(a.match)).slice(0,10));
+    h+=rowHTML("New Releases",pool.filter(t=>t.year>=2024));
+  }
+  [...new Set(pool.map(t=>t.genre))].forEach(g=>h+=rowHTML(g,pool.filter(t=>t.genre===g)));
+  rows.innerHTML=h;
+}
+
+/* nav */
+$("#nav").onclick=e=>{const a=e.target.closest("a");if(!a)return;view=a.dataset.view;$("#search").value="";
+  document.querySelectorAll("nav a").forEach(x=>x.classList.toggle("active",x===a));render();scrollTo(0,0)};
+$("#search").oninput=render;
+$("#me").onclick=()=>{store.set("sf_user",null);location.reload()};
+addEventListener("scroll",()=>$("#nav").classList.toggle("solid",scrollY>40));
+
+/* modal */
+document.addEventListener("click",e=>{
+  const c=e.target.closest(".card");if(c)return openModal(+c.dataset.id);
+  const pl=e.target.closest("[data-play]");if(pl)return play(+pl.dataset.play);
+  const inf=e.target.closest("[data-info]");if(inf)return openModal(+inf.dataset.info);
+  if(e.target.id==="modal"||e.target.closest(".x"))closeModal();
+  const tg=e.target.closest("[data-toggle]");if(tg){const id=+tg.dataset.toggle;list=list.includes(id)?list.filter(x=>x!==id):[...list,id];store.set("sf_list",list);openModal(id);render()}
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){player.classList.contains("hidden")?closeModal():closePlayer()}
+  if((e.key==="Enter"||e.key===" ")&&e.target.classList?.contains("card")){e.preventDefault();openModal(+e.target.dataset.id)}
+});
+function openModal(id){
+  const t=TITLES[id],m=$("#modal"),inList=list.includes(id);
+  const len=t.type==="Movie"?`${Math.floor(t.mins/60)}h ${t.mins%60}m`:`${t.seasons} Season${t.seasons>1?"s":""}`;
+  const similar=TITLES.filter(x=>x.genre===t.genre&&x.id!==id).slice(0,4);
+  m.innerHTML=`<div class="sheet"><button class="x" aria-label="Close">✕</button>
+   <div class="banner" style="background:${grad(t)}">${t.emoji}</div>
+   <div class="info"><h2>${t.title}</h2>
+   <div class="meta"><b>${t.match} Match</b> · ${t.year} · ${t.rating} · ${len} · ${t.genre}</div>
+   <p>${t.desc}</p>
+   <button class="btn play" data-play="${id}">▶ Play</button>
+   <button class="btn list" data-toggle="${id}">${inList?"✓ In My List":"+ My List"}</button>
+   ${similar.length?`<h3 style="margin:1.5rem 0 .6rem">More like this</h3><div class="track" style="padding:0">${similar.map(cardHTML).join("")}</div>`:""}
+   </div></div>`;
+  m.classList.remove("hidden");document.body.style.overflow="hidden";
+  m.querySelector(".sheet").scrollTop=0;
+}
+function closeModal(){$("#modal").classList.add("hidden");document.body.style.overflow=""}
+
+/* mock player */
+const player=$("#player");let cur=null,pos=0,dur=0,playing=true,timer=null;
+const fmt=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+function play(id){
+  cur=TITLES[id];closeModal();
+  dur=cur.type==="Movie"?cur.mins*60:45*60;
+  pos=store.get("sf_prog",{})[id]||0;playing=true;
+  $("#screen").style.background=grad(cur);$("#screen").textContent=cur.emoji;
+  $("#ptitle").textContent=cur.title;$("#pp").textContent="⏸";
+  player.classList.remove("hidden");document.body.style.overflow="hidden";
+  clearInterval(timer);timer=setInterval(()=>{if(playing){pos=Math.min(dur,pos+60);draw()}},1000); // demo speed: 1s = 1min
+  draw();
+}
+function draw(){$("#fill").style.width=pos/dur*100+"%";$("#time").textContent=`${fmt(pos)} / ${fmt(dur)}`;
+  $("#screen").style.filter=`hue-rotate(${pos/4}deg)`}
+function closePlayer(){
+  clearInterval(timer);player.classList.add("hidden");document.body.style.overflow="";
+  const p=store.get("sf_prog",{});if(pos>0&&pos<dur-60)p[cur.id]=pos;else delete p[cur.id];store.set("sf_prog",p);render();
+}
+$("#pclose").onclick=closePlayer;
+$("#pp").onclick=()=>{playing=!playing;$("#pp").textContent=playing?"⏸":"▶"};
+$("#back").onclick=()=>{pos=Math.max(0,pos-600);draw()};
+$("#fwd").onclick=()=>{pos=Math.min(dur,pos+600);draw()};
+$("#bar").onclick=e=>{const r=e.currentTarget.getBoundingClientRect();pos=(e.clientX-r.left)/r.width*dur;draw()};
+
+if(user)start();
+</script>
+</body>
+</html>

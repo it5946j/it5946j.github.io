@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VidTube</title>
+<style>
+:root{--bg:#fff;--bg2:#f2f2f2;--text:#0f0f0f;--muted:#606060;--line:#e5e5e5;--accent:#ff2d2d;--chip:#0000000d;--chipOn:#0f0f0f;--chipOnText:#fff;--hdr:56px;--side:220px}
+:root[data-theme=dark]{--bg:#0f0f0f;--bg2:#272727;--text:#f1f1f1;--muted:#aaa;--line:#303030;--chip:#ffffff1a;--chipOn:#f1f1f1;--chipOnText:#0f0f0f}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:Roboto,Arial,sans-serif;font-size:14px}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:inherit;text-decoration:none}
+.hidden{display:none!important}
+
+header{position:sticky;top:0;z-index:30;height:var(--hdr);background:var(--bg);display:flex;align-items:center;gap:12px;padding:0 16px}
+.icon{width:40px;height:40px;border-radius:50%;font-size:1.25rem;display:grid;place-items:center;flex:none}
+.icon:hover{background:var(--chip)}
+.logo{display:flex;align-items:center;gap:6px;font-weight:700;font-size:1.2rem;letter-spacing:-.5px}
+.logo i{background:var(--accent);color:#fff;border-radius:7px;width:30px;height:21px;display:grid;place-items:center;font-size:.7rem;font-style:normal}
+form.search{flex:1;max-width:640px;margin:0 auto;display:flex}
+form.search input{flex:1;min-width:0;border:1px solid var(--line);border-right:0;border-radius:20px 0 0 20px;padding:0 16px;height:40px;background:var(--bg)}
+form.search button{width:64px;border:1px solid var(--line);border-radius:0 20px 20px 0;background:var(--bg2)}
+
+aside{position:fixed;top:var(--hdr);left:0;bottom:0;width:var(--side);padding:12px;overflow:auto;background:var(--bg);z-index:20}
+aside a{display:flex;align-items:center;gap:20px;padding:0 12px;height:40px;border-radius:10px}
+aside a:hover,aside a.on{background:var(--bg2)}
+aside a.on{font-weight:600}
+aside hr{border:0;border-top:1px solid var(--line);margin:12px 0}
+aside h4{padding:6px 12px;font-size:1rem}
+body.collapsed aside{display:none}
+main{margin-left:var(--side);padding:0 24px 40px}
+body.collapsed main{margin-left:0}
+#scrim{position:fixed;inset:0;background:#0008;z-index:15}
+
+.chips{position:sticky;top:var(--hdr);z-index:10;background:var(--bg);display:flex;gap:12px;overflow-x:auto;padding:12px 0;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{background:var(--chip);padding:0 12px;height:32px;border-radius:8px;white-space:nowrap;font-weight:500}
+.chip.on{background:var(--chipOn);color:var(--chipOnText)}
+.note{background:var(--bg2);border-radius:12px;padding:12px 16px;margin:8px 0 16px;color:var(--muted);line-height:1.5}
+.note b{color:var(--text)}.note a{text-decoration:underline;cursor:pointer}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px 16px;margin-top:8px}
+.vid{display:block}
+.thumb{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--bg2)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
+.vid:hover .thumb img{transform:scale(1.03)}
+.row{display:flex;gap:12px;margin-top:12px}
+.av.sm{width:24px;height:24px;font-size:.7rem}
+.av{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:700}
+.vt{font-weight:600;font-size:1rem;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vm{color:var(--muted);font-size:.86rem;margin-top:4px;line-height:1.4}
+.empty{padding:60px 0;text-align:center;color:var(--muted)}
+.more{display:block;margin:28px auto;padding:10px 24px;border-radius:20px;background:var(--bg2);font-weight:600}
+
+.watch{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;padding-top:24px;max-width:1700px}
+.player{aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden}
+.player iframe{width:100%;height:100%;border:0;display:block}
+.watch h1{font-size:1.25rem;line-height:1.4;margin:12px 0}
+.bar{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.bar .grow{flex:1}
+.pill{background:var(--bg2);border-radius:18px;height:36px;padding:0 16px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.pill:hover{filter:brightness(.93)}
+.pill.on{background:var(--chipOn);color:var(--chipOnText)}
+.desc{background:var(--bg2);border-radius:12px;padding:12px;margin:16px 0;line-height:1.5}
+.cm h3{margin:20px 0 16px;font-size:1.2rem}
+.cm form{display:flex;gap:12px;margin-bottom:24px}
+.cm textarea{flex:1;border:0;border-bottom:1px solid var(--line);background:none;resize:none;outline:none;padding:6px 0;min-height:34px}
+.cm .c{display:flex;gap:12px;margin-bottom:18px}
+.up{display:flex;flex-direction:column;gap:10px}
+.up .vid{display:flex;gap:8px}
+.up .thumb{width:168px;flex:none;border-radius:8px}
+.up .vt{font-size:.92rem}
+
+#modal{position:fixed;inset:0;background:#0008;z-index:50;display:grid;place-items:center;padding:16px}
+.sheet{background:var(--bg);border-radius:14px;padding:24px;width:min(480px,100%);max-height:90vh;overflow:auto}
+.sheet h2{margin-bottom:10px}
+.sheet p{color:var(--muted);line-height:1.5;margin-bottom:12px}
+.sheet input[type=text]{width:100%;height:40px;border:1px solid var(--line);border-radius:8px;padding:0 12px;background:var(--bg);margin-bottom:14px}
+.sheet .acts{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.danger{color:#d93025}
+
+@media(max-width:1000px){.watch{grid-template-columns:1fr}}
+@media(max-width:800px){
+  aside{box-shadow:0 0 20px #0006}
+  body:not(.collapsed) main{margin-left:0}
+  main{padding:0 12px 40px}
+  .logo span{display:none}
+}
+</style>
+</head>
+<body class="collapsed">
+
+<header>
+  <button class="icon" id="menu" aria-label="Menu">☰</button>
+  <a class="logo" href="#/"><i>▶</i><span>VidTube</span></a>
+  <form class="search" id="sf">
+    <input id="q" type="search" placeholder="Search or paste a YouTube link" aria-label="Search" autocomplete="off">
+    <button aria-label="Search">🔍</button>
+  </form>
+  <button class="icon" id="theme" aria-label="Toggle theme">🌙</button>
+  <button class="icon" id="settings" aria-label="Settings">⚙️</button>
+</header>
+
+<div id="scrim" class="hidden"></div>
+<aside id="side"></aside>
+<main id="app"></main>
+<div id="modal" class="hidden"></div>
+
+<script>
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const decode=s=>{const t=document.createElement("textarea");t.innerHTML=s;return t.value};
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+const compact=n=>n==null?"":new Intl.NumberFormat("en",{notation:"compact",maximumFractionDigits:1}).format(n);
+const ago=iso=>{
+  if(!iso)return"";const s=(Date.now()-new Date(iso))/1000;
+  for(const [n,u] of [[31536000,"year"],[2592000,"month"],[604800,"week"],[86400,"day"],[3600,"hour"],[60,"minute"]])
+    if(s>=n){const v=Math.floor(s/n);return `${v} ${u}${v>1?"s":""} ago`}
+  return"just now";
+};
+const hue=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%360;return h};
+const avatar=n=>`<div class="av" style="background:hsl(${hue(n)} 55% 45%)">${esc((n||"?")[0].toUpperCase())}</div>`;
+const thumbURL=id=>`https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+const parseId=s=>{
+  s=s.trim();if(/^[\w-]{11}$/.test(s))return s;
+  try{const u=new URL(s);
+    if(u.hostname==="youtu.be")return u.pathname.slice(1,12);
+    if(/youtube\.com$/.test(u.hostname)){
+      if(u.searchParams.get("v"))return u.searchParams.get("v");
+      const m=u.pathname.match(/\/(?:embed|shorts|live)\/([\w-]{11})/);if(m)return m[1];
+    }}catch{}
+  return null;
+};
+
+/* ---------- curated videos (work with no API key) ---------- */
+const CURATED=[
+ ["dQw4w9WgXcQ","Rick Astley - Never Gonna Give You Up","Rick Astley","Music"],
+ ["fJ9rUzIMcZQ","Queen - Bohemian Rhapsody","Queen Official","Music"],
+ ["kJQP7kiw5Fk","Luis Fonsi - Despacito ft. Daddy Yankee","Luis Fonsi","Music"],
+ ["9bZkp7q19f0","PSY - GANGNAM STYLE","officialpsy","Music"],
+ ["JGwWNGJdvx8","Ed Sheeran - Shape of You","Ed Sheeran","Music"],
+ ["RgKAFK5djSk","Wiz Khalifa - See You Again ft. Charlie Puth","Wiz Khalifa","Music"],
+ ["OPf0YbXqDm0","Mark Ronson - Uptown Funk ft. Bruno Mars","Mark Ronson","Music"],
+ ["YQHsXMglC9A","Adele - Hello","Adele","Music"],
+ ["hT_nvWreIhg","OneRepublic - Counting Stars","OneRepublic","Music"],
+ ["60ItHLz5WEA","Alan Walker - Faded","Alan Walker","Music"],
+ ["pRpeEdMmmQ0","Taylor Swift - Shake It Off","Taylor Swift","Music"],
+ ["e-ORhEE9VVg","Taylor Swift - Blank Space","Taylor Swift","Music"],
+ ["CevxZvSJLk8","Katy Perry - Roar","Katy Perry","Music"],
+ ["09R8_2nJtjg","Maroon 5 - Sugar","Maroon 5","Music"],
+ ["lp-EO5I60KA","Ed Sheeran - Thinking Out Loud","Ed Sheeran","Music"],
+ ["aqz-KE-bpKQ","Big Buck Bunny","Blender","Animation"],
+ ["eRsGyueVLvQ","Sintel - Third Open Movie by Blender Foundation","Blender","Animation"],
+ ["R6MlUcmOul8","Tears of Steel","Blender","Animation"],
+ ["TLkA0RELQ1g","Elephants Dream","Blender","Animation"],
+ ["jNQXAC9IVRw","Me at the zoo","jawed","Classics"],
+ ["_OBlgSz8sSM","Charlie bit my finger - again !","Harry","Classics"]
+].map(([id,t,c,cat])=>({id,t,c,cat}));
+
+/* metadata cache: id -> {id,t,c,d,v} (powers history / liked / saved pages) */
+const meta=store.get("vt_meta",{});
+const remember=v=>{meta[v.id]={...meta[v.id],...v};};
+const flushMeta=()=>{const k=Object.keys(meta);if(k.length>400)k.slice(0,k.length-400).forEach(x=>delete meta[x]);store.set("vt_meta",meta)};
+CURATED.forEach(v=>remember(v));
+
+/* ---------- user data ---------- */
+const lists={liked:store.get("vt_liked",[]),later:store.get("vt_later",[]),hist:store.get("vt_hist",[]),subs:store.get("vt_subs",[])};
+const save=k=>store.set("vt_"+k,lists[k]);
+const toggle=(k,v)=>{const i=lists[k].indexOf(v);i>=0?lists[k].splice(i,1):lists[k].unshift(v);save(k);return i<0};
+const has=(k,v)=>lists[k].includes(v);
+
+/* ---------- YouTube Data API (optional) ---------- */
+const getKey=()=>store.get("vt_key","");
+async function api(path,params){
+  const u=new URL("https://www.googleapis.com/youtube/v3/"+path);
+  u.search=new URLSearchParams({...params,key:getKey()});
+  const r=await fetch(u);const j=await r.json();
+  if(!r.ok)throw new Error(j.error?.message||r.statusText);
+  return j;
+}
+const norm=(id,sn,st)=>({id,t:decode(sn.title),c:decode(sn.channelTitle),d:sn.publishedAt,v:st?+st.viewCount:undefined});
+async function apiSearch(q,token){
+  const j=await api("search",{part:"snippet",type:"video",maxResults:24,q,pageToken:token||"",safeSearch:"moderate",videoEmbeddable:"true"});
+  return{items:j.items.map(i=>norm(i.id.videoId,i.snippet)),next:j.nextPageToken};
+}
+async function apiTrending(token){
+  const j=await api("videos",{part:"snippet,statistics",chart:"mostPopular",maxResults:24,regionCode:"US",pageToken:token||""});
+  return{items:j.items.map(i=>norm(i.id,i.snippet,i.statistics)),next:j.nextPageToken};
+}
+async function apiVideos(ids){
+  const j=await api("videos",{part:"snippet,statistics",id:ids.join(",")});
+  return j.items.map(i=>({...norm(i.id,i.snippet,i.statistics),desc:i.snippet.description,likes:i.statistics.likeCount}));
+}
+async function oembed(id){ // no key needed; best effort (may be blocked by CORS)
+  try{const r=await fetch(`https://noembed.com/embed?url=${encodeURIComponent("https://www.youtube.com/watch?v="+id)}`);
+    const j=await r.json();if(j.title)return{id,t:j.title,c:j.author_name||"YouTube"}}catch{}
+  return null;
+}
+
+/* ---------- views ---------- */
+const app=$("#app");
+const card=v=>`<a class="vid" href="#/watch/${v.id}"><div class="thumb"><img loading="lazy" src="${thumbURL(v.id)}" alt=""></div>
+ <div class="row">${avatar(v.c)}<div><div class="vt">${esc(v.t)}</div>
+ <div class="vm">${esc(v.c)}<br>${[v.v!=null?compact(v.v)+" views":"",ago(v.d)].filter(Boolean).join(" · ")}</div></div></div></a>`;
+const grid=items=>items.length?`<div class="grid">${items.map(card).join("")}</div>`:"";
+
+const CHIPS=["All","Music","Animation","Classics"];
+const API_CHIPS=["Trending","Music","Gaming","Live","News","Podcasts","Cooking","Science","Sports","Comedy"];
+let feed={key:"",items:[],next:null};
+
+async function loadFeed(kind,arg,more){
+  const k=kind+"|"+arg;
+  if(!more)feed={key:k,items:[],next:null};
+  const r=kind==="trend"?await apiTrending(more?feed.next:""):await apiSearch(arg,more?feed.next:"");
+  r.items.forEach(remember);flushMeta();
+  feed.items=feed.items.concat(r.items);feed.next=r.next;
+}
+
+function noKeyNote(){
+  return getKey()?"":`<div class="note"><b>Demo mode.</b> Showing a curated set of real, embeddable videos. You can still paste any YouTube link into the search bar.
+  For search across all of YouTube, <a data-open="settings">add a free API key</a>.</div>`;
+}
+
+async function viewHome(chip="All"){
+  const keyed=!!getKey();
+  const chips=keyed?API_CHIPS:CHIPS;
+  const head=`<div class="chips">${chips.map(c=>`<button class="chip ${c===chip?"on":""}" data-chip="${esc(c)}">${esc(c)}</button>`).join("")}</div>${noKeyNote()}`;
+  if(!keyed){
+    app.innerHTML=head+grid(CURATED.filter(v=>chip==="All"||v.cat===chip));return;
+  }
+  app.innerHTML=head+`<div class="empty">Loading…</div>`;
+  try{
+    chip==="Trending"||chip==="All"?await loadFeed("trend",""):await loadFeed("search",chip);
+    paintFeed(head);
+  }catch(e){app.innerHTML=head+apiError(e)}
+}
+function paintFeed(head){
+  app.innerHTML=head+grid(feed.items)+(feed.next?`<button class="more" data-more>Show more</button>`:"")+(feed.items.length?"":`<div class="empty">No results.</div>`);
+}
+const apiError=e=>`<div class="note"><b>YouTube API error:</b> ${esc(e.message)}<br>Check your key in <a data-open="settings">Settings</a>, or you may have hit the daily quota.</div>`;
+
+async function viewSearch(q){
+  document.title=q+" – VidTube";
+  const head=`<div class="chips"><button class="chip on">Results for “${esc(q)}”</button></div>`;
+  if(getKey()){
+    app.innerHTML=head+`<div class="empty">Searching…</div>`;
+    try{await loadFeed("search",q);paintFeed(head)}catch(e){app.innerHTML=head+apiError(e)}
+    return;
+  }
+  const t=q.toLowerCase();
+  const hits=CURATED.filter(v=>(v.t+" "+v.c+" "+v.cat).toLowerCase().includes(t));
+  app.innerHTML=head+noKeyNote()+(hits.length?grid(hits):`<div class="empty">No matches in the demo set.<br>Paste a YouTube link above, or add an API key in Settings to search everything.</div>`);
+}
+
+function viewList(kind,title){
+  const ids=kind==="subs"?[]:lists[kind];
+  let body;
+  if(kind==="subs"){
+    body=lists.subs.length?`<div class="grid">${lists.subs.map(c=>`<div class="row">${avatar(c)}<div><div class="vt">${esc(c)}</div><div class="vm">Subscribed</div></div></div>`).join("")}</div>`:`<div class="empty">You haven't subscribed to any channels yet.</div>`;
+  }else{
+    const items=ids.map(id=>meta[id]).filter(Boolean);
+    body=items.length?grid(items):`<div class="empty">Nothing here yet.</div>`;
+  }
+  app.innerHTML=`<h2 style="margin:24px 0 8px">${title}</h2>`+
+    (kind==="hist"&&lists.hist.length?`<button class="pill" data-clear-hist>Clear watch history</button>`:"")+body;
+}
+
+async function viewWatch(id){
+  if(!/^[\w-]{11}$/.test(id)){app.innerHTML=`<div class="empty">Invalid video link.</div>`;return}
+  let v=meta[id]||{id,t:"Video",c:"YouTube"};
+  paintWatch(v);
+  // record history right away
+  lists.hist=lists.hist.filter(x=>x!==id);lists.hist.unshift(id);lists.hist=lists.hist.slice(0,100);save("hist");
+  // enrich metadata
+  try{
+    if(getKey()){const [r]=await apiVideos([id]);if(r){remember(r);v=meta[id];}}
+    else if(!meta[id]||v.t==="Video"){const r=await oembed(id);if(r){remember(r);v=meta[id]}}
+    flushMeta();
+    if(location.hash==="#/watch/"+id)paintWatch(v,true);
+  }catch{}
+}
+function paintWatch(v,refresh){
+  const id=v.id;document.title=v.t+" – VidTube";
+  const subbed=has("subs",v.c),liked=has("liked",id),later=has("later",id);
+  const pool=(getKey()&&feed.items.length?feed.items:CURATED).filter(x=>x.id!==id).slice(0,14);
+  if(refresh&&$("#player iframe")){ // keep playing; only update text
+    $("#wtitle").textContent=v.t;$("#wchan").innerHTML=chanHTML(v,subbed);
+    const d=$("#wdesc");if(d)d.innerHTML=descHTML(v);return;
+  }
+  app.innerHTML=`<div class="watch"><div>
+    <div class="player" id="player"><iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" title="${esc(v.t)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>
+    <h1 id="wtitle">${esc(v.t)}</h1>
+    <div class="bar"><div class="bar grow" id="wchan">${chanHTML(v,subbed)}</div>
+      <button class="pill ${liked?"on":""}" data-like="${id}">👍 ${liked?"Liked":"Like"}</button>
+      <button class="pill ${later?"on":""}" data-later="${id}">🕒 ${later?"Saved":"Watch later"}</button>
+      <button class="pill" data-share="${id}">↗ Share</button>
+      <a class="pill" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=${id}">Open on YouTube</a></div>
+    <div class="desc" id="wdesc">${descHTML(v)}</div>
+    <div class="cm" id="cm">${cmHTML(id)}</div>
+  </div><div class="up">${pool.map(x=>`<a class="vid" href="#/watch/${x.id}"><div class="thumb"><img loading="lazy" src="${thumbURL(x.id)}" alt=""></div><div><div class="vt">${esc(x.t)}</div><div class="vm">${esc(x.c)}${x.v!=null?"<br>"+compact(x.v)+" views":""}</div></div></a>`).join("")}</div></div>`;
+}
+const cmHTML=id=>{const cms=store.get("vt_cm_"+id,[]);
+  return `<h3>${cms.length} Comment${cms.length===1?"":"s"}</h3>
+  <form data-cm="${id}">${avatar("Y")}<textarea name="t" rows="1" placeholder="Add a comment…" required maxlength="500"></textarea><button class="pill">Comment</button></form>
+  ${cms.map(c=>`<div class="c">${avatar(c.n)}<div><div><b>${esc(c.n)}</b> <span class="vm">${ago(c.at)}</span></div><div>${esc(c.t)}</div></div></div>`).join("")}
+  <div class="vm">Comments are saved only in your browser.</div>`};
+const chanHTML=(v,subbed)=>`${avatar(v.c)}<div><b>${esc(v.c)}</b></div><button class="pill ${subbed?"":"on"}" data-sub="${esc(v.c)}">${subbed?"Subscribed ✓":"Subscribe"}</button>`;
+const descHTML=v=>`<b>${[v.v!=null?compact(v.v)+" views":"",ago(v.d)].filter(Boolean).join(" · ")||"VidTube"}</b><br>${v.desc?esc(v.desc).slice(0,600).replace(/\n/g,"<br>"):"Played with the official YouTube embed player."}`;
+
+/* ---------- sidebar + router ---------- */
+const NAV=[["#/","🏠","Home"],["#/subs","📺","Subscriptions"],null,["#/hist","🕘","History"],["#/later","🕒","Watch later"],["#/liked","👍","Liked videos"]];
+function drawSide(){
+  const h=location.hash||"#/";
+  $("#side").innerHTML=NAV.map(n=>n?`<a href="${n[0]}" class="${h===n[0]?"on":""}"><span>${n[1]}</span>${n[2]}</a>`:"<hr>").join("")+
+   (lists.subs.length?`<hr><h4>Subscriptions</h4>${lists.subs.map(c=>`<a href="#/search/${encodeURIComponent(c)}"><span class="av sm" style="background:hsl(${hue(c)} 55% 45%)">${esc(c[0].toUpperCase())}</span>${esc(c)}</a>`).join("")}`:"");
+}
+async function route(){
+  const h=location.hash||"#/";document.title="VidTube";
+  drawSide();scrollTo(0,0);
+  if(innerWidth<=800)closeSide();
+  const [,page,...rest]=h.split("/"),arg=decodeURIComponent(rest.join("/"));
+  if(page==="watch")return viewWatch(arg);
+  if(page==="search")return viewSearch(arg);
+  if(page==="hist")return viewList("hist","Watch history");
+  if(page==="later")return viewList("later","Watch later");
+  if(page==="liked")return viewList("liked","Liked videos");
+  if(page==="subs")return viewList("subs","Subscriptions");
+  return viewHome();
+}
+addEventListener("hashchange",route);
+
+/* ---------- interactions ---------- */
+function closeSide(){document.body.classList.add("collapsed");$("#scrim").classList.add("hidden")}
+$("#menu").onclick=()=>{
+  const c=document.body.classList.toggle("collapsed");
+  $("#scrim").classList.toggle("hidden",c||innerWidth>800);
+};
+$("#scrim").onclick=closeSide;
+$("#sf").onsubmit=e=>{
+  e.preventDefault();const q=$("#q").value.trim();if(!q)return;
+  const id=parseId(q);location.hash=id?"#/watch/"+id:"#/search/"+encodeURIComponent(q);
+};
+function setTheme(t){document.documentElement.dataset.theme=t;$("#theme").textContent=t==="dark"?"☀️":"🌙";store.set("vt_theme",t)}
+$("#theme").onclick=()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark");
+setTheme(store.get("vt_theme",matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+
+function openSettings(){
+  $("#modal").innerHTML=`<div class="sheet"><h2>Settings</h2>
+   <p>Paste a free <b>YouTube Data API v3</b> key to enable real search and trending. Create one in the Google Cloud Console (APIs &amp; Services → Credentials), and restrict it to this website's URL.
+   The key is stored only in this browser — it is never uploaded anywhere except to Google's API.</p>
+   <input type="text" id="keyin" placeholder="API key" value="${esc(getKey())}" autocomplete="off" spellcheck="false">
+   <div class="acts"><button class="pill danger" id="wipe">Clear all my data</button><button class="pill" id="cancel">Cancel</button><button class="pill on" id="savekey">Save</button></div></div>`;
+  $("#modal").classList.remove("hidden");
+  $("#cancel").onclick=closeModal;
+  $("#savekey").onclick=()=>{store.set("vt_key",$("#keyin").value.trim());closeModal();feed={key:"",items:[],next:null};route()};
+  $("#wipe").onclick=()=>{if(confirm("Delete your key, history, likes, comments and subscriptions from this browser?")){try{Object.keys(localStorage).filter(k=>k.startsWith("vt_")&&k!=="vt_theme").forEach(k=>localStorage.removeItem(k))}catch{}location.hash="#/";location.reload()}};
+}
+function closeModal(){$("#modal").classList.add("hidden")}
+$("#settings").onclick=openSettings;
+$("#modal").onclick=e=>{if(e.target.id==="modal")closeModal()};
+addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+
+document.addEventListener("click",async e=>{
+  const t=e.target.closest("button,a[data-open]");if(!t)return;
+  const d=t.dataset;
+  if(d.open==="settings")return openSettings();
+  if(d.chip)return viewHome(d.chip);
+  if(d.more!==undefined){
+    t.textContent="Loading…";
+    try{const [kind,arg]=feed.key.split("|");await loadFeed(kind,arg,true);
+      const head=app.querySelector(".chips").outerHTML+(app.querySelector(".note")?.outerHTML||"");paintFeed(head)}
+    catch(err){t.textContent=err.message}
+    return;
+  }
+  if(d.like){const on=toggle("liked",d.like);t.classList.toggle("on",on);t.textContent=on?"👍 Liked":"👍 Like"}
+  if(d.later){const on=toggle("later",d.later);t.classList.toggle("on",on);t.textContent=on?"🕒 Saved":"🕒 Watch later"}
+  if(d.sub){const on=toggle("subs",d.sub);t.classList.toggle("on",!on);t.textContent=on?"Subscribed ✓":"Subscribe";drawSide()}
+  if(d.share){const url=`${location.origin}${location.pathname}#/watch/${d.share}`;
+    try{await navigator.clipboard.writeText(url);t.textContent="✓ Link copied"}catch{prompt("Copy link:",url)}}
+  if(d.clearHist!==undefined){lists.hist=[];save("hist");viewList("hist","Watch history")}
+});
+document.addEventListener("submit",e=>{
+  const f=e.target.closest("form[data-cm]");if(!f)return;
+  e.preventDefault();const id=f.dataset.cm,txt=f.t.value.trim();if(!txt)return;
+  const cms=store.get("vt_cm_"+id,[]);cms.unshift({n:"You",t:txt,at:new Date().toISOString()});store.set("vt_cm_"+id,cms.slice(0,200));
+  $("#cm").innerHTML=cmHTML(id);
+});
+
+if(innerWidth>800)document.body.classList.remove("collapsed");
+route();
+</script>
+</body>
+</html>

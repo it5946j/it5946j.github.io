@@ -46,6 +46,10 @@ body.collapsed main{margin-left:0}
 .thumb{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--bg2)}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}
 .vid:hover .thumb img{transform:scale(1.03)}
+.thumb .pl{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:2.2rem;background:#0000;opacity:0;transition:.2s;pointer-events:none;text-shadow:0 2px 8px #000}
+.vid:hover .thumb .pl{opacity:1}
+.thumb iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
+.thumb.noimg{background:linear-gradient(135deg,#444,#111)}
 .row{display:flex;gap:12px;margin-top:12px}
 .av.sm{width:24px;height:24px;font-size:.7rem}
 .av{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:700}
@@ -203,9 +207,27 @@ async function oembed(id){ // no key needed; best effort (may be blocked by CORS
   return null;
 }
 
+/* thumbnails: fall back to a smaller image, then to a plain tile */
+function thumbFallback(img){
+  if(!img.dataset.f){img.dataset.f=1;img.src=img.src.replace("hqdefault","mqdefault")}
+  else{img.onerror=null;img.style.display="none";img.parentElement.classList.add("noimg")}
+}
+/* hover preview (desktop only): muted autoplay inside the thumbnail, like YouTube */
+if(matchMedia("(hover:hover)").matches){
+  let pt=null,cur=null;
+  const stop=()=>{clearTimeout(pt);if(cur){cur.querySelector("iframe")?.remove();cur=null}};
+  document.addEventListener("mouseover",e=>{
+    const t=e.target.closest(".thumb[data-id]");if(t===cur||(!t&&!cur))return;
+    stop();if(!t)return;cur=t;
+    pt=setTimeout(()=>{const id=t.dataset.id;if(!/^[\w-]{11}$/.test(id))return;
+      const f=document.createElement("iframe");f.allow="autoplay";f.tabIndex=-1;
+      f.src=`https://www.youtube.com/embed/${id}?autoplay=1&mute=1&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1`;
+      t.appendChild(f)},800)});
+  addEventListener("hashchange",stop);
+}
 /* ---------- views ---------- */
 const app=$("#app");
-const card=v=>`<a class="vid" href="#/watch/${v.id}"><div class="thumb"><img loading="lazy" src="${thumbURL(v.id)}" alt=""></div>
+const card=v=>`<a class="vid" href="#/watch/${v.id}"><div class="thumb" data-id="${esc(v.id)}"><img loading="lazy" src="${thumbURL(v.id)}" alt="" onerror="thumbFallback(this)"><span class="pl">▶</span></div>
  <div class="row">${avatar(v.c)}<div><div class="vt">${esc(v.t)}</div>
  <div class="vm">${esc(v.c)}<br>${[v.v!=null?compact(v.v)+" views":"",ago(v.d)].filter(Boolean).join(" · ")}</div></div></div></a>`;
 const grid=items=>items.length?`<div class="grid">${items.map(card).join("")}</div>`:"";
@@ -303,7 +325,7 @@ function paintWatch(v,refresh){
       <a class="pill" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=${id}">Open on YouTube</a></div>
     <div class="desc" id="wdesc">${descHTML(v)}</div>
     <div class="cm" id="cm">${cmHTML(id)}</div>
-  </div><div class="up">${pool.map(x=>`<a class="vid" href="#/watch/${x.id}"><div class="thumb"><img loading="lazy" src="${thumbURL(x.id)}" alt=""></div><div><div class="vt">${esc(x.t)}</div><div class="vm">${esc(x.c)}${x.v!=null?"<br>"+compact(x.v)+" views":""}</div></div></a>`).join("")}</div></div>`;
+  </div><div class="up">${pool.map(x=>`<a class="vid" href="#/watch/${x.id}"><div class="thumb" data-id="${esc(x.id)}"><img loading="lazy" src="${thumbURL(x.id)}" alt="" onerror="thumbFallback(this)"><span class="pl">▶</span></div><div><div class="vt">${esc(x.t)}</div><div class="vm">${esc(x.c)}${x.v!=null?"<br>"+compact(x.v)+" views":""}</div></div></a>`).join("")}</div></div>`;
 }
 const cmHTML=id=>{const cms=store.get("vt_cm_"+id,[]);
   return `<h3>${cms.length} Comment${cms.length===1?"":"s"}</h3>
